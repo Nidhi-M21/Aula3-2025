@@ -11,7 +11,8 @@
 
 #include "queue.h"
 
-queue_elem_t *encontraTarefaTempoMIN(queue_t* q){
+
+pcb_t *encontraTarefaTempoMIN(queue_t* q){
     queue_elem_t *tarefaAtual= q->head;
     queue_elem_t *tarefaComTempMin= tarefaAtual; // guardei como min o head so para começar a comparar
 
@@ -20,14 +21,22 @@ queue_elem_t *encontraTarefaTempoMIN(queue_t* q){
     }
 
     while (tarefaAtual!= NULL) {
-        if (tarefaAtual->pcb->time_ms<tarefaComTempMin->pcb->time_ms ) {
+        if (tarefaAtual->pcb->time_ms< tarefaComTempMin->pcb->time_ms ) {
             tarefaComTempMin= tarefaAtual;
         }
 
         tarefaAtual= tarefaAtual->next;
     }
 
-    return tarefaComTempMin;
+    queue_elem_t *removido = remove_queue_elem(q, tarefaComTempMin);
+    if (!removido) {
+        return NULL;
+    }
+
+    pcb_t *tarefaPcb= removido->pcb;
+    free(removido);
+
+    return tarefaPcb;
 }
 
 void sjf_scheduler(uint32_t current_time_ms, queue_t *rq, pcb_t **cpu_task) {
@@ -53,16 +62,10 @@ void sjf_scheduler(uint32_t current_time_ms, queue_t *rq, pcb_t **cpu_task) {
     }
     if (*cpu_task == NULL) {// If CPU is idle está livre
 
-       queue_elem_t* ptrParaTarefaMin= encontraTarefaTempoMIN(rq); // huardo o nó que contem a tarefa mini
-
-        if (ptrParaTarefaMin!=NULL) {
-            queue_elem_t* tarefaParaExecutar =remove_queue_elem(rq, ptrParaTarefaMin); // elimino o nó associado E RETORNO O PONTEIRO PARA A TEREFA faço isto pk tenho que remover essa tarefa da stack
-           *cpu_task=tarefaParaExecutar->pcb;  //
-            free(tarefaParaExecutar);   // libertar apenas o nó, não a tarefa
-        }else {
-            printf("nao conseguiu encontarar tarefa min");
-        }
+       pcb_t* ptrParaTarefaMin= encontraTarefaTempoMIN(rq); // guardo o nó que contem a tarefa mini
+       ( *cpu_task)=ptrParaTarefaMin;
 
     }
+
 }
 

@@ -13,8 +13,6 @@
 
 queue_t listasReadyPrioridade[8];
 
-
-
 void mlfq_scheduler(uint32_t current_time_ms, queue_t listaReadyPrioridade[], pcb_t **cpu_task) {
 
 
@@ -42,29 +40,35 @@ void mlfq_scheduler(uint32_t current_time_ms, queue_t listaReadyPrioridade[], pc
 
         }else if ((*cpu_task)->slice_start_ms>500) { // se passou do time slice interrompo e coloco no fim da fila deixando o cpu livre e diminuo a prioridade
 
-        if ((*cpu_task)->prioridade<7) {
-            (*cpu_task)->prioridade++; //baixo a prioridade
 
-        }
+             if (*cpu_task != NULL && (*cpu_task)->prioridade<=7) {
+                 (*cpu_task)->prioridade++; //baixo a prioridade
+            }
 
-            int priodiddaeTarefa=(*cpu_task)->prioridade;
-            (*cpu_task)->slice_start_ms=0;
+            int prioridadeTarefa=(*cpu_task)->prioridade;
 
-            enqueue_pcb(&listaReadyPrioridade[priodiddaeTarefa],*cpu_task); // coloco a tarefa na lista correspondente
-            (*cpu_task) = NULL;
+                (*cpu_task)->slice_start_ms=0;
+                enqueue_pcb(&listaReadyPrioridade[prioridadeTarefa], *cpu_task);
+                *cpu_task = NULL;
+
+
+            //enqueue_pcb(&listaReadyPrioridade[priodiddaeTarefa],*cpu_task); // coloco a tarefa na lista correspondente
+           // (*cpu_task) = NULL;
 
         }
     }
     if (*cpu_task == NULL) {
        //escolher a proxima tarefa com base na sua perioridade e se estivar vazia ou nao a lista
        for (int i = 0; i < 8; i++) {
-           if (listaReadyPrioridade[i].head!=NULL) {
+
+
+           if (listaReadyPrioridade[i].head!=NULL ) { // estou a tirar a proxima tarefa da fila que ainda está completa com prioridade mais alta
                (*cpu_task) = dequeue_pcb(&listaReadyPrioridade[i]);
+                   (*cpu_task)->slice_start_ms = 0;
                break;
+
            }
        }
 
-
-        (*cpu_task)->slice_start_ms=0;
     }
 }
