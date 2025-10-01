@@ -18,13 +18,15 @@ typedef struct pcb_st{
     uint32_t ellapsed_time_ms;     // Time ellapsed since start in milliseconds
     uint32_t slice_start_ms;       // Time when the current time slice started
     uint32_t sockfd;               // Socket file descriptor for communication with the application
+    int prioridade;
+
 } pcb_t;
 
 // Define singly linked list elements
 typedef struct queue_elem_st queue_elem_t;
 typedef struct queue_elem_st {
-    pcb_t *pcb;
-    queue_elem_t *next;
+    pcb_t *pcb; // aponta para uma tarefa
+    queue_elem_t *next; // aponta para o proximo no da fila
 } queue_elem_t;
 
 // Define the queue structure

@@ -1,3 +1,7 @@
+//
+// Created by HP on 29/09/2025.
+//
+
 #include "fifo.h"
 
 #include <stdio.h>
@@ -6,23 +10,15 @@
 #include "msg.h"
 #include <unistd.h>
 
-/**
- * @brief First-In-First-Out (FIFO) scheduling algorithm.
- *
- * This function implements the FIFO scheduling algorithm. If the CPU is not idle it
- * checks if the application is ready and frees the CPU.
- * If the CPU is idle, it selects the next task to run based on the order they were added
- * to the ready queue. The task that has been in the queue the longest is selected to run next.
- *
- * @param current_time_ms The current time in milliseconds.
- * @param rq Pointer to the ready queue containing tasks that are ready to run.
- * @param cpu_task Double pointer to the currently running task. This will be updated
- *                 to point to the next task to run.
- */
-void fifo_scheduler(uint32_t current_time_ms, queue_t *rq, pcb_t **cpu_task) {
+#include "queue.h"
+
+void rr_scheduler(uint32_t current_time_ms, queue_t *rq, pcb_t **cpu_task) {
     if (*cpu_task) {  // Se o CPU está ocupado com uma tarefa
 
         (*cpu_task)->ellapsed_time_ms += TICKS_MS;      // Incrementa o tempo que a tarefa já esteve a correr.
+        (*cpu_task)->slice_start_ms+= TICKS_MS;
+
+
         if ((*cpu_task)->ellapsed_time_ms >= (*cpu_task)->time_ms) {//- Se o tempo decorrido é maior ou igual ao tempo total necessário para a tarefa (time_ms), então a tarefa terminou.
 
             // Task finished
@@ -39,11 +35,18 @@ void fifo_scheduler(uint32_t current_time_ms, queue_t *rq, pcb_t **cpu_task) {
             // Application finished and can be removed (this is FIFO after all)
             free((*cpu_task));
             (*cpu_task) = NULL; //marca cmo cpu livre
-        }
+
+        }else if ((*cpu_task)->slice_start_ms>50) { // se passou do time slice interrompo e coloco no fim da fila deixando o cpu livre
+
+           enqueue_pcb(rq, *cpu_task); // coloquei no final da lista;
+           (*cpu_task) = NULL; // e o cpu fica livre
+       }
     }
     if (*cpu_task == NULL) {            // If CPU is idle
         *cpu_task = dequeue_pcb(rq);   // Get next task from ready queue (dequeue from head)
+
+        // quando vem uma nova tarefa eu tenho que fazer reset no sou time_slice inicio
+
+        (*cpu_task)->slice_start_ms=0;
     }
 }
-
-
