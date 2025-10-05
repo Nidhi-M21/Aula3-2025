@@ -7,5 +7,5 @@
 #include <stdint.h>
 #include "queue.h"
 
-void mlfq_scheduler(uint32_t current_time_ms, queue_t listaReadyPrioridade[], pcb_t **cpu_task) ;
+void mlfq_scheduler(uint32_t current_time_ms,queue_t *rq ,queue_t listaReadyPrioridade[], pcb_t **cpu_task) ;
 #endif //SCHEDULING_MLFQ_H

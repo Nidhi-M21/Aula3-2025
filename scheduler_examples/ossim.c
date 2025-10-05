@@ -258,7 +258,8 @@ scheduler_en get_scheduler(const char *name) {
 
 int main(int argc, char *argv[]) {
 
-    queue_t listasReadyPrioridade[8];
+    queue_t listasReadyPrioridade[3];
+    queue_t listaBlocked;
     if (argc != 2) {
         printf("Usage: %s <scheduler>\nScheduler options: FIFO", argv[0]);
         exit(EXIT_FAILURE);
@@ -312,11 +313,9 @@ int main(int argc, char *argv[]) {
                 break;
 
             case SCHED_MLFQ:
-                mlfq_scheduler(current_time_ms, listasReadyPrioridade, &CPU);
+                mlfq_scheduler(current_time_ms, &ready_queue,listasReadyPrioridade, &CPU);
+
                 break;
-
-
-
 
             default:
                 printf("Unknown scheduler type\n");
