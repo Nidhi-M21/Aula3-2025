@@ -20,8 +20,6 @@ typedef struct pcb_st{
     uint32_t sockfd;               // Socket file descriptor for communication with the application
     int prioridade;
 
-
-
 } pcb_t;
 
 // Define singly linked list elements

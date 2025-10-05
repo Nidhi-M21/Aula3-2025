@@ -15,9 +15,6 @@ pcb_t *new_pcb(pid_t pid, uint32_t sockfd, uint32_t time_ms) {
     new_task->ellapsed_time_ms = 0;
     new_task->prioridade = 0;
 
-
-
-
     return new_task;
 }
 
